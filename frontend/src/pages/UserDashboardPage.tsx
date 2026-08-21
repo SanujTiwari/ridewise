@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import {
   Bus,
   MapPin,
@@ -13,19 +14,22 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { routeService } from '../services/routeService';
 import { MapView } from '../features/maps/MapView';
-import { MOCK_STOPS } from '../api/mockData';
+import { MOCK_FAVORITE_ROUTES, MOCK_STOPS, MOCK_TRIP_HISTORY } from '../api/mockData';
 import { useWebSocket } from '../hooks/useWebSocket';
 import type { Bus as BusType, ServiceAlert, SystemStats } from '../types';
 
 export const UserDashboardPage: React.FC = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'overview';
+
   const [buses, setBuses] = useState<BusType[]>([]);
   const [alerts, setAlerts] = useState<ServiceAlert[]>([]);
   const [stats, setStats] = useState<SystemStats | null>(null);
 
-  // Driver state simulation
+  // Driver telematics state simulation
   const [driverTripStatus, setDriverTripStatus] = useState<'IDLE' | 'ON_TRIP'>('IDLE');
-  const [driverSpeed, setDriverSpeed] = useState(42);
+  const [driverSpeed, setDriverSpeed] = useState(48);
   const [simulatedLat, setSimulatedLat] = useState(31.241);
   const [simulatedLng, setSimulatedLng] = useState(75.725);
 
@@ -40,7 +44,6 @@ export const UserDashboardPage: React.FC = () => {
     };
     fetchData();
 
-    // Simulated GPS pulse every 4s
     const timer = setInterval(() => {
       setSimulatedLat((prev) => +(prev + 0.0015).toFixed(4));
       setSimulatedLng((prev) => +(prev - 0.0012).toFixed(4));
@@ -78,9 +81,9 @@ export const UserDashboardPage: React.FC = () => {
   const role = user?.role || 'USER';
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-12">
       
-      {/* Header Banner */}
+      {/* Top Header Banner */}
       <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-gray-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2 text-xs text-blue-400 font-bold uppercase tracking-wider mb-1">
@@ -101,13 +104,13 @@ export const UserDashboardPage: React.FC = () => {
 
         <div className="flex items-center space-x-3">
           <div className="bg-gray-900 px-4 py-2 rounded-xl border border-gray-800 text-xs">
-            <div className="text-gray-500 font-semibold uppercase">Current Role</div>
-            <div className="text-white font-bold">{role}</div>
+            <div className="text-gray-500 font-semibold uppercase">Active Mode</div>
+            <div className="text-white font-bold">{role} PORTAL</div>
           </div>
         </div>
       </div>
 
-      {/* SERVICE ALERTS BANNER */}
+      {/* Service Alerts Banner */}
       {alerts.length > 0 && (
         <div className="space-y-3">
           {alerts.map((alert) => (
@@ -125,20 +128,19 @@ export const UserDashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* ROLE 1: PASSENGER / USER VIEW */}
-      {role === 'USER' && (
+      {/* TAB CONTENTS BASED ON ACTIVE TAB & ROLE */}
+
+      {/* TAB 1: OVERVIEW TAB */}
+      {(activeTab === 'overview' || activeTab === '') && role === 'USER' && (
         <div className="space-y-8">
-          
-          {/* Quick Metrics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
             <div className="glass-card p-6 rounded-2xl space-y-2">
               <div className="flex items-center justify-between text-gray-400">
                 <span className="text-xs font-semibold uppercase">Current Location</span>
                 <MapPin className="w-4 h-4 text-blue-400" />
               </div>
               <div className="text-lg font-bold text-white">Phagwara Sector 4</div>
-              <div className="text-xs text-gray-400">Accuracy: ±5 meters</div>
+              <div className="text-xs text-gray-400">GPS Accuracy: ±5 meters</div>
             </div>
 
             <div className="glass-card p-6 rounded-2xl space-y-2">
@@ -155,13 +157,12 @@ export const UserDashboardPage: React.FC = () => {
                 <span className="text-xs font-semibold uppercase">Saved Favorites</span>
                 <Heart className="w-4 h-4 text-pink-400" />
               </div>
-              <div className="text-lg font-bold text-white">1 Active Favorite</div>
+              <div className="text-lg font-bold text-white">1 Active Route</div>
               <div className="text-xs text-gray-400">Route 101 Express</div>
             </div>
-
           </div>
 
-          {/* UPCOMING BUSES WITH ETAS SECTION */}
+          {/* Upcoming Buses */}
           <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-gray-800 space-y-6">
             <div className="flex items-center justify-between">
               <div>
@@ -210,7 +211,7 @@ export const UserDashboardPage: React.FC = () => {
             </div>
           </div>
 
-          {/* SIMULATED LIVE MAP VIEW */}
+          {/* Interactive Leaflet Map */}
           <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-gray-800 space-y-6">
             <div className="flex items-center justify-between">
               <div>
@@ -219,11 +220,10 @@ export const UserDashboardPage: React.FC = () => {
               </div>
               <div className="flex items-center space-x-2 text-xs text-gray-400">
                 <MapIcon className="w-4 h-4 text-blue-400" />
-                <span>Simulated Leaflet View</span>
+                <span>CartoDB Leaflet GIS View</span>
               </div>
             </div>
 
-            {/* Map Container View */}
             <MapView
               buses={buses}
               stops={MOCK_STOPS}
@@ -231,107 +231,266 @@ export const UserDashboardPage: React.FC = () => {
               height="380px"
             />
           </div>
-
         </div>
       )}
 
-      {/* ROLE 2: DRIVER DASHBOARD VIEW */}
-      {role === 'DRIVER' && (
-        <div className="space-y-8">
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            {/* Driver Vehicle Assignment */}
-            <div className="glass-panel p-6 rounded-3xl border border-gray-800 space-y-6">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                <Bus className="w-5 h-5 text-amber-400" />
-                Assigned Vehicle Specs
-              </h3>
-
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between bg-gray-900/60 p-3 rounded-xl border border-gray-800">
-                  <span className="text-gray-400">Bus Identifier:</span>
-                  <span className="font-bold text-white font-mono">BUS-101</span>
-                </div>
-                <div className="flex justify-between bg-gray-900/60 p-3 rounded-xl border border-gray-800">
-                  <span className="text-gray-400">Registration Number:</span>
-                  <span className="font-bold text-white font-mono">PB-08-AB-1234</span>
-                </div>
-                <div className="flex justify-between bg-gray-900/60 p-3 rounded-xl border border-gray-800">
-                  <span className="text-gray-400">Assigned Route:</span>
-                  <span className="font-bold text-blue-400">Route 101 (Phagwara - Jalandhar)</span>
-                </div>
-              </div>
-
-              {/* Start / Stop Trip Button Controls */}
-              <div className="pt-4 border-t border-gray-800 flex gap-4">
-                {driverTripStatus === 'IDLE' ? (
-                  <button
-                    onClick={() => setDriverTripStatus('ON_TRIP')}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center space-x-2"
-                  >
-                    <Play className="w-5 h-5" />
-                    <span>START TRIP & STREAM GPS</span>
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setDriverTripStatus('IDLE')}
-                    className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-red-600/30 transition-all flex items-center justify-center space-x-2"
-                  >
-                    <Square className="w-5 h-5" />
-                    <span>END TRIP</span>
-                  </button>
-                )}
-              </div>
+      {/* TAB 2: FULLSCREEN LIVE TRACKING MAP TAB */}
+      {activeTab === 'tracking' && (
+        <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-gray-800 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-extrabold text-white">Live Bus GIS Telematics Radar</h2>
+              <p className="text-xs text-gray-400">Real-time vector bus markers, heading angles, and speed feeds</p>
             </div>
-
-            {/* GPS Telematics Simulator Panel */}
-            <div className="glass-panel p-6 rounded-3xl border border-gray-800 space-y-6">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                <SlidersHorizontal className="w-5 h-5 text-cyan-400" />
-                Live GPS Telematics Stream
-              </h3>
-
-              <div className="space-y-4 text-xs">
-                <div className="bg-gray-900 p-4 rounded-xl space-y-2 border border-gray-800 font-mono">
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Latitude:</span>
-                    <span className="text-emerald-400">{simulatedLat}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Longitude:</span>
-                    <span className="text-emerald-400">{simulatedLng}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Status:</span>
-                    <span className="text-cyan-400 uppercase font-bold">{driverTripStatus}</span>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-gray-400 font-semibold block">Simulated Speed ({driverSpeed} km/h)</label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="90"
-                    value={driverSpeed}
-                    onChange={(e) => setDriverSpeed(Number(e.target.value))}
-                    className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                  />
-                </div>
-              </div>
-            </div>
-
+            <Link
+              to="/search"
+              className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all"
+            >
+              Search Custom Route
+            </Link>
           </div>
 
+          <MapView
+            buses={buses}
+            stops={MOCK_STOPS}
+            userLocation={{ latitude: 31.253, longitude: 75.703 }}
+            height="550px"
+          />
         </div>
       )}
 
-      {/* ROLE 3: ADMIN DASHBOARD VIEW */}
+      {/* TAB 3: NEARBY BUS STOPS DIRECTORY TAB */}
+      {activeTab === 'stops' && (
+        <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-gray-800 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-extrabold text-white">Nearby Bus Stops Directory</h2>
+              <p className="text-xs text-gray-400">Discovered bus stops within 5 km of your location</p>
+            </div>
+            <span className="text-xs text-blue-400 font-mono font-bold">6 Stops Active</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {MOCK_STOPS.map((stop) => (
+              <div key={stop.id} className="glass-card p-6 rounded-2xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-xl bg-cyan-600/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                      <MapPin className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white text-base">{stop.name}</h4>
+                      <p className="text-xs text-gray-400">{stop.address}</p>
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-emerald-400 bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-800 font-mono">
+                    {stop.city}
+                  </span>
+                </div>
+
+                <div className="pt-3 border-t border-gray-800 flex items-center justify-between text-xs text-gray-400">
+                  <span>Coordinates: {stop.latitude}, {stop.longitude}</span>
+                  <Link to={`/search?from=${encodeURIComponent(stop.name)}`} className="text-blue-400 hover:underline font-semibold">
+                    Find Buses Here ➔
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: FAVORITE ROUTES TAB */}
+      {activeTab === 'favorites' && (
+        <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-gray-800 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-extrabold text-white">Saved Favorite Routes</h2>
+              <p className="text-xs text-gray-400">1-tap access to your frequent commute paths</p>
+            </div>
+            <Link to="/search" className="bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-xl">
+              + Add Favorite Route
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {MOCK_FAVORITE_ROUTES.map((fav) => (
+              <div key={fav.id} className="glass-card p-6 rounded-2xl space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-xl bg-pink-600/20 border border-pink-500/30 flex items-center justify-center text-pink-400 font-bold font-mono">
+                      {fav.routeNumber}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white text-base">{fav.source} ➔ {fav.destination}</h4>
+                      <p className="text-xs text-gray-400">Saved on {new Date(fav.addedAt).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  <Heart className="w-5 h-5 text-pink-500 fill-pink-500" />
+                </div>
+
+                <div className="pt-2 flex gap-3">
+                  <Link
+                    to={`/search?from=${encodeURIComponent(fav.source)}&to=${encodeURIComponent(fav.destination)}`}
+                    className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 rounded-xl text-center"
+                  >
+                    Search Schedules
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 5: SERVICE ALERTS TAB */}
+      {activeTab === 'alerts' && (
+        <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-gray-800 space-y-6">
+          <div>
+            <h2 className="text-2xl font-extrabold text-white">Public Transit Service Alerts</h2>
+            <p className="text-xs text-gray-400">Live operational advisories and road diversion notices</p>
+          </div>
+
+          <div className="space-y-4">
+            {alerts.map((alert) => (
+              <div key={alert.id} className="glass-card p-6 rounded-2xl border-l-4 border-l-amber-500 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <AlertTriangle className="w-5 h-5 text-amber-400" />
+                    <h4 className="font-bold text-white text-base">{alert.title}</h4>
+                  </div>
+                  <span className="text-xs bg-amber-500/20 text-amber-300 font-bold px-2 py-0.5 rounded uppercase">
+                    {alert.severity}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-300">{alert.description}</p>
+                <div className="text-xs text-gray-500">Affected Route: <strong className="text-white">Route {alert.affectedRouteNumber}</strong></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 6: TRIP HISTORY TAB */}
+      {activeTab === 'history' && (
+        <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-gray-800 space-y-6">
+          <div>
+            <h2 className="text-2xl font-extrabold text-white">Passenger Trip History</h2>
+            <p className="text-xs text-gray-400">Past completed journeys, fares paid, and travel timestamps</p>
+          </div>
+
+          <div className="space-y-4">
+            {MOCK_TRIP_HISTORY.map((trip) => (
+              <div key={trip.id} className="glass-card p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center space-x-4">
+                  <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center font-bold text-blue-400 text-xs">
+                    {trip.routeNumber}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-white text-base">{trip.source} ➔ {trip.destination}</h4>
+                    <p className="text-xs text-gray-400">{new Date(trip.date).toLocaleString()}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-6 text-right">
+                  <div>
+                    <div className="text-[10px] text-gray-500 uppercase font-semibold">Fare Paid</div>
+                    <div className="text-base font-extrabold text-white font-mono">₹{trip.farePaid}</div>
+                  </div>
+                  <span className="text-xs bg-emerald-500/20 text-emerald-400 font-bold px-3 py-1 rounded-full uppercase">
+                    {trip.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* DRIVER & ADMIN SPECIFIC TABS */}
+      {role === 'DRIVER' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="glass-panel p-6 rounded-3xl border border-gray-800 space-y-6">
+            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+              <Bus className="w-5 h-5 text-amber-400" />
+              Assigned Vehicle Specs
+            </h3>
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between bg-gray-900/60 p-3 rounded-xl border border-gray-800">
+                <span className="text-gray-400">Bus Identifier:</span>
+                <span className="font-bold text-white font-mono">BUS-101</span>
+              </div>
+              <div className="flex justify-between bg-gray-900/60 p-3 rounded-xl border border-gray-800">
+                <span className="text-gray-400">Registration Number:</span>
+                <span className="font-bold text-white font-mono">PB-08-AB-1234</span>
+              </div>
+              <div className="flex justify-between bg-gray-900/60 p-3 rounded-xl border border-gray-800">
+                <span className="text-gray-400">Assigned Route:</span>
+                <span className="font-bold text-blue-400">Route 101 (Phagwara - Jalandhar)</span>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-gray-800 flex gap-4">
+              {driverTripStatus === 'IDLE' ? (
+                <button
+                  onClick={() => setDriverTripStatus('ON_TRIP')}
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center space-x-2"
+                >
+                  <Play className="w-5 h-5" />
+                  <span>START TRIP & STREAM GPS</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => setDriverTripStatus('IDLE')}
+                  className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-red-600/30 transition-all flex items-center justify-center space-x-2"
+                >
+                  <Square className="w-5 h-5" />
+                  <span>END TRIP</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="glass-panel p-6 rounded-3xl border border-gray-800 space-y-6">
+            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+              <SlidersHorizontal className="w-5 h-5 text-cyan-400" />
+              Live GPS Telematics Stream
+            </h3>
+
+            <div className="space-y-4 text-xs">
+              <div className="bg-gray-900 p-4 rounded-xl space-y-2 border border-gray-800 font-mono">
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Latitude:</span>
+                  <span className="text-emerald-400">{simulatedLat}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Longitude:</span>
+                  <span className="text-emerald-400">{simulatedLng}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Status:</span>
+                  <span className="text-cyan-400 uppercase font-bold">{driverTripStatus}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-gray-400 font-semibold block">Simulated Speed ({driverSpeed} km/h)</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="90"
+                  value={driverSpeed}
+                  onChange={(e) => setDriverSpeed(Number(e.target.value))}
+                  className="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {role === 'ADMIN' && (
         <div className="space-y-8">
-          
-          {/* Admin Stats Row */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="glass-card p-6 rounded-2xl space-y-1">
               <div className="text-xs text-gray-400 uppercase font-semibold">Total Fleet Users</div>
@@ -351,7 +510,6 @@ export const UserDashboardPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Admin Fleet Management Table */}
           <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-gray-800 space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold text-white">Active Bus Fleet Roster</h3>
@@ -395,7 +553,6 @@ export const UserDashboardPage: React.FC = () => {
               </table>
             </div>
           </div>
-
         </div>
       )}
 
