@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.database.database import engine, Base, SessionLocal
-from app.api.v1 import auth, routes, stops, buses, admin
+from app.api.v1 import auth, routes, stops, buses, admin, notifications
 from app.websocket import location_ws
 from app.services.telematics_simulator import simulator
 from app.models import User, Route, Stop, Bus, ServiceAlert
@@ -79,6 +79,7 @@ app.include_router(routes.router, prefix=settings.API_V1_STR)
 app.include_router(stops.router, prefix=settings.API_V1_STR)
 app.include_router(buses.router, prefix=settings.API_V1_STR)
 app.include_router(admin.router, prefix=settings.API_V1_STR)
+app.include_router(notifications.router, prefix=settings.API_V1_STR)
 app.include_router(location_ws.router, prefix=settings.API_V1_STR)
 
 @app.get("/")

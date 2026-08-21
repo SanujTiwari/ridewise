@@ -18,7 +18,7 @@ export const RegisterPage: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await register(name, email, selectedRole);
+      await register(name, email, password, selectedRole);
       navigate('/app/dashboard');
     } finally {
       setLoading(false);

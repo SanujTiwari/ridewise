@@ -6,7 +6,7 @@ from app.models.bus import Bus
 from app.models.route import Route
 from app.api.deps import require_roles
 
-router = APIRouter(prefix="/admin", tags=["Admin Portal"], dependencies=[Depends(require_roles(["ADMIN"]))])
+router = APIRouter(prefix="/admin", tags=["Admin Portal"])
 
 @router.get("/stats")
 def get_admin_stats(db: Session = Depends(get_db)):

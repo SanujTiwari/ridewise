@@ -11,12 +11,12 @@ export const authService = {
   async login(email: string, passwordHash: string, selectedRole: UserRole = 'USER'): Promise<LoginResponse> {
     try {
       const response = await apiClient.post('/auth/login', { email, password: passwordHash });
-      const { user, access_token } = response.data.data;
+      const { user, access_token } = response.data.user ? response.data : response.data.data;
       localStorage.setItem('ridewise_token', access_token);
       localStorage.setItem('ridewise_user', JSON.stringify(user));
       return { user, token: access_token };
     } catch {
-      // Mock login for frontend preview
+      // Mock login fallback
       const mockUser: User = {
         ...MOCK_CURRENT_USER,
         email,
@@ -30,10 +30,10 @@ export const authService = {
     }
   },
 
-  async register(name: string, email: string, role: UserRole = 'USER'): Promise<LoginResponse> {
+  async register(name: string, email: string, password: string = 'password123', role: UserRole = 'USER'): Promise<LoginResponse> {
     try {
-      const response = await apiClient.post('/auth/register', { name, email, role });
-      const { user, access_token } = response.data.data;
+      const response = await apiClient.post('/auth/register', { name, email, password, role });
+      const { user, access_token } = response.data.user ? response.data : response.data.data;
       localStorage.setItem('ridewise_token', access_token);
       localStorage.setItem('ridewise_user', JSON.stringify(user));
       return { user, token: access_token };

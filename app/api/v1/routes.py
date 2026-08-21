@@ -13,12 +13,21 @@ def get_routes(db: Session = Depends(get_db)):
     return routes
 
 @router.get("/search")
-def search_routes(from_stop: Optional[str] = None, to_stop: Optional[str] = None, db: Session = Depends(get_db)):
+def search_routes(
+    from_stop: Optional[str] = None,
+    to_stop: Optional[str] = None,
+    from_loc: Optional[str] = None,
+    to_loc: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    source_query = from_stop or from_loc or ""
+    dest_query = to_stop or to_loc or ""
+
     query = db.query(Route)
-    if from_stop:
-        query = query.filter(Route.source.ilike(f"%{from_stop}%"))
-    if to_stop:
-        query = query.filter(Route.destination.ilike(f"%{to_stop}%"))
+    if source_query:
+        query = query.filter(Route.source.ilike(f"%{source_query}%"))
+    if dest_query:
+        query = query.filter(Route.destination.ilike(f"%{dest_query}%"))
     
     routes = query.all()
     return {"success": True, "data": routes}
