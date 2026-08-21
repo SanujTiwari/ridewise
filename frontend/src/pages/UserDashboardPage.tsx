@@ -198,22 +198,12 @@ export const UserDashboardPage: React.FC = () => {
             </div>
 
             {/* Map Container View */}
-            <div className="relative h-72 rounded-2xl bg-gray-950 border border-gray-800 overflow-hidden flex items-center justify-center p-6 text-center">
-              
-              {/* Simulated Map Grid Lines */}
-              <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:16px_16px]" />
-              
-              <div className="relative z-10 space-y-4">
-                <div className="inline-flex items-center space-x-2 bg-blue-600/20 border border-blue-500/30 text-blue-400 px-4 py-2 rounded-xl text-sm font-semibold">
-                  <Activity className="w-4 h-4 animate-spin" />
-                  <span>Bus BUS-101 GPS Stream Active</span>
-                </div>
-                <div className="text-xs font-mono text-gray-400">
-                  Lat: <span className="text-white">{simulatedLat}</span> | Lng: <span className="text-white">{simulatedLng}</span> | Speed: <span className="text-cyan-400">{driverSpeed} km/h</span>
-                </div>
-              </div>
-
-            </div>
+            <MapView
+              buses={buses}
+              stops={MOCK_STOPS}
+              userLocation={{ latitude: 31.253, longitude: 75.703 }}
+              height="380px"
+            />
           </div>
 
         </div>
