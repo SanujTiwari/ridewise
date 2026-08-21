@@ -3,17 +3,13 @@ import { useSearchParams, Link } from 'react-router-dom';
 import {
   Search,
   MapPin,
-  Clock,
-  Bus,
-  ArrowRight,
   Filter,
-  DollarSign,
   Navigation,
   ChevronRight,
   ShieldAlert
 } from 'lucide-react';
 import { routeService } from '../services/routeService';
-import { RouteSearchResult } from '../types';
+import type { RouteSearchResult } from '../types';
 
 export const RouteSearchPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();

@@ -4,20 +4,13 @@ import {
   Bus,
   Search,
   MapPin,
-  Clock,
   ArrowRight,
-  Shield,
-  Zap,
   Navigation,
   Bell,
-  Smartphone,
-  CheckCircle2,
   ChevronDown,
-  TrendingUp,
-  Activity,
-  UserCheck
+  Activity
 } from 'lucide-react';
-import { MOCK_BUSES, MOCK_ROUTES, MOCK_STATS } from '../api/mockData';
+import { MOCK_STATS } from '../api/mockData';
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();

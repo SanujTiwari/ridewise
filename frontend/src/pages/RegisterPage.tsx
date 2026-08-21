@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Bus, Lock, Mail, User as UserIcon, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { UserRole } from '../types';
+import type { UserRole } from '../types';
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();

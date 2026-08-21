@@ -1,6 +1,6 @@
 import { apiClient } from '../api/axiosClient';
 import { MOCK_BUSES, MOCK_ROUTES, MOCK_SERVICE_ALERTS, MOCK_STATS, MOCK_STOPS } from '../api/mockData';
-import { Bus, Route, RouteSearchResult, ServiceAlert, Stop, SystemStats } from '../types';
+import type { Bus, Route, RouteSearchResult, ServiceAlert, Stop, SystemStats } from '../types';
 
 export const routeService = {
   // Search routes matching source and destination query

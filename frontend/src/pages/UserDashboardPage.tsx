@@ -1,36 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import {
   Bus,
   MapPin,
-  Clock,
   AlertTriangle,
   Heart,
-  History,
   Activity,
-  Shield,
-  Users,
-  Navigation,
-  CheckCircle2,
   SlidersHorizontal,
   Play,
   Square,
   Plus,
-  RefreshCw,
-  TrendingUp,
   Map as MapIcon
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { routeService } from '../services/routeService';
-import { Bus as BusType, FavoriteRoute, Route, ServiceAlert, Stop, SystemStats, TripHistoryItem } from '../types';
+import type { Bus as BusType, ServiceAlert, Stop, SystemStats } from '../types';
 
 export const UserDashboardPage: React.FC = () => {
   const { user } = useAuth();
-  const [searchParams] = useSearchParams();
-  const activeTab = searchParams.get('tab') || 'overview';
-
   const [buses, setBuses] = useState<BusType[]>([]);
-  const [stops, setStops] = useState<Stop[]>([]);
   const [alerts, setAlerts] = useState<ServiceAlert[]>([]);
   const [stats, setStats] = useState<SystemStats | null>(null);
 
@@ -43,11 +30,9 @@ export const UserDashboardPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       const b = await routeService.getActiveBuses();
-      const s = await routeService.getNearbyStops();
       const a = await routeService.getServiceAlerts();
       const st = await routeService.getSystemStats();
       setBuses(b);
-      setStops(s);
       setAlerts(a);
       setStats(st);
     };

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bus, Lock, Mail, ArrowRight, ShieldCheck, UserCheck } from 'lucide-react';
+import { Bus, Lock, Mail, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { UserRole } from '../types';
+import type { UserRole } from '../types';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
