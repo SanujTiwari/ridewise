@@ -35,6 +35,27 @@ export const RegisterPage: React.FC = () => {
           </div>
           <h2 className="text-2xl font-extrabold text-white">Create RideWise Account</h2>
           <p className="text-xs text-gray-400">Join thousands of smart public transport commuters</p>
+        {/* Role Selector Pill */}
+        <div className="space-y-2">
+          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block text-center">
+            Register As
+          </label>
+          <div className="grid grid-cols-3 gap-2 bg-gray-900 p-1.5 rounded-xl border border-gray-800 text-xs">
+            {(['USER', 'DRIVER', 'ADMIN'] as UserRole[]).map((r) => (
+              <button
+                type="button"
+                key={r}
+                onClick={() => setSelectedRole(r)}
+                className={`py-2 rounded-lg font-bold transition-all ${
+                  selectedRole === r
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

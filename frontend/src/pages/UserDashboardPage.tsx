@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { routeService } from '../services/routeService';
-import type { Bus as BusType, ServiceAlert, Stop, SystemStats } from '../types';
+import type { Bus as BusType, ServiceAlert, SystemStats } from '../types';
 
 export const UserDashboardPage: React.FC = () => {
   const { user } = useAuth();
