@@ -22,7 +22,7 @@ export function useWebSocket(url: string = 'ws://localhost:8000/api/v1/ws/bus-lo
 
   useEffect(() => {
     let ws: WebSocket;
-    let reconnectTimer: NodeJS.Timeout;
+    let reconnectTimer: ReturnType<typeof setTimeout>;
 
     const connect = () => {
       try {
