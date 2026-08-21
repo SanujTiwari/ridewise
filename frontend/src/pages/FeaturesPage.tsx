@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bus, Search, Map, Bell, Shield, Heart, Activity, Smartphone, SlidersHorizontal, RefreshCw } from 'lucide-react';
+import { Search, Bell, Shield, Activity, SlidersHorizontal, RefreshCw } from 'lucide-react';
 
 export const FeaturesPage: React.FC = () => {
   const featureList = [

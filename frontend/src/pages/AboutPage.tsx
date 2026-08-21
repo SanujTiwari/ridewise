@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bus, Target, ShieldCheck, Cpu, Globe, Users } from 'lucide-react';
+import { Bus, Target, ShieldCheck, Cpu } from 'lucide-react';
 
 export const AboutPage: React.FC = () => {
   return (

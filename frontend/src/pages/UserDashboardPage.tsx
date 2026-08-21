@@ -4,7 +4,6 @@ import {
   MapPin,
   AlertTriangle,
   Heart,
-  Activity,
   SlidersHorizontal,
   Play,
   Square,
