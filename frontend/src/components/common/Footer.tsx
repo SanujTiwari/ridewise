@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Bus, Github, Twitter, Linkedin, Heart, ShieldCheck, Zap } from 'lucide-react';
+import { Bus, Code, Globe, Terminal } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   return (
@@ -22,14 +22,14 @@ export const Footer: React.FC = () => {
               Smart public transit companion providing real-time bus tracking, ETA predictions, route search, and service alert updates.
             </p>
             <div className="flex items-center space-x-3 text-gray-400 pt-2">
-              <a href="https://github.com/SanujTiwari/ridewise" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-gray-900 hover:bg-gray-800 hover:text-white transition-all">
-                <Github className="w-4 h-4" />
+              <a href="https://github.com/SanujTiwari/ridewise" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-gray-900 hover:bg-gray-800 hover:text-white transition-all" title="GitHub Repository">
+                <Code className="w-4 h-4" />
               </a>
-              <a href="#" className="p-2 rounded-lg bg-gray-900 hover:bg-gray-800 hover:text-white transition-all">
-                <Twitter className="w-4 h-4" />
+              <a href="#" className="p-2 rounded-lg bg-gray-900 hover:bg-gray-800 hover:text-white transition-all" title="Live Portal">
+                <Globe className="w-4 h-4" />
               </a>
-              <a href="#" className="p-2 rounded-lg bg-gray-900 hover:bg-gray-800 hover:text-white transition-all">
-                <Linkedin className="w-4 h-4" />
+              <a href="#" className="p-2 rounded-lg bg-gray-900 hover:bg-gray-800 hover:text-white transition-all" title="API Docs">
+                <Terminal className="w-4 h-4" />
               </a>
             </div>
           </div>

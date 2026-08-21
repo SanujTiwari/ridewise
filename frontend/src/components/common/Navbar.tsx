@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Bus, MapPin, Search, Bell, Shield, User as UserIcon, Menu, X, ArrowRight, Activity } from 'lucide-react';
+import { Bus, Search, Menu, X, ArrowRight, Activity } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { UserRole } from '../../types';
+import type { UserRole } from '../../types';
 
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout, switchRole } = useAuth();

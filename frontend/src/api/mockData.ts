@@ -1,4 +1,4 @@
-import { Bus, FavoriteRoute, Route, ServiceAlert, Stop, SystemStats, TripHistoryItem, User } from '../types';
+import type { Bus, FavoriteRoute, Route, ServiceAlert, Stop, SystemStats, TripHistoryItem, User } from '../types';
 
 export const MOCK_CURRENT_USER: User = {
   id: 'u-101',

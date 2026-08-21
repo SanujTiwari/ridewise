@@ -1,6 +1,6 @@
 import { apiClient } from '../api/axiosClient';
 import { MOCK_CURRENT_USER } from '../api/mockData';
-import { User, UserRole } from '../types';
+import type { User, UserRole } from '../types';
 
 export interface LoginResponse {
   user: User;

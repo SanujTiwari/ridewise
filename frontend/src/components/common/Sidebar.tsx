@@ -8,15 +8,12 @@ import {
   Heart,
   Bell,
   History,
-  User as UserIcon,
   Navigation,
   Bus,
   Users,
   Shield,
   BarChart3,
   AlertTriangle,
-  Clock,
-  Settings,
   SlidersHorizontal
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
