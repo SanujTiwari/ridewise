@@ -14,7 +14,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { routeService } from '../services/routeService';
 import { MapView } from '../features/maps/MapView';
-import { MOCK_FAVORITE_ROUTES, MOCK_STOPS, MOCK_TRIP_HISTORY } from '../api/mockData';
+import { MOCK_BUSES, MOCK_FAVORITE_ROUTES, MOCK_SERVICE_ALERTS, MOCK_STATS, MOCK_STOPS, MOCK_TRIP_HISTORY } from '../api/mockData';
 import { useWebSocket } from '../hooks/useWebSocket';
 import type { Bus as BusType, ServiceAlert, SystemStats } from '../types';
 
@@ -23,9 +23,9 @@ export const UserDashboardPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'overview';
 
-  const [buses, setBuses] = useState<BusType[]>([]);
-  const [alerts, setAlerts] = useState<ServiceAlert[]>([]);
-  const [stats, setStats] = useState<SystemStats | null>(null);
+  const [buses, setBuses] = useState<BusType[]>(MOCK_BUSES);
+  const [alerts, setAlerts] = useState<ServiceAlert[]>(MOCK_SERVICE_ALERTS);
+  const [stats, setStats] = useState<SystemStats | null>(MOCK_STATS);
 
   // Driver telematics state simulation
   const [driverTripStatus, setDriverTripStatus] = useState<'IDLE' | 'ON_TRIP'>('IDLE');
@@ -35,12 +35,16 @@ export const UserDashboardPage: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const b = await routeService.getActiveBuses();
-      const a = await routeService.getServiceAlerts();
-      const st = await routeService.getSystemStats();
-      setBuses(b);
-      setAlerts(a);
-      setStats(st);
+      try {
+        const b = await routeService.getActiveBuses();
+        const a = await routeService.getServiceAlerts();
+        const st = await routeService.getSystemStats();
+        if (Array.isArray(b) && b.length > 0) setBuses(b);
+        if (Array.isArray(a) && a.length > 0) setAlerts(a);
+        if (st) setStats(st);
+      } catch {
+        // Retain fallback state on network error
+      }
     };
     fetchData();
 

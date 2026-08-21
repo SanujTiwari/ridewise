@@ -7,13 +7,14 @@ from app.schemas.bus import BusSchema
 
 router = APIRouter(prefix="/buses", tags=["Buses & Tracking"])
 
-@router.get("", response_model=List[BusSchema])
+@router.get("")
 def get_buses(db: Session = Depends(get_db)):
-    return db.query(Bus).all()
+    buses = db.query(Bus).all()
+    return {"success": True, "data": buses}
 
-@router.get("/{bus_id}", response_model=BusSchema)
+@router.get("/{bus_id}")
 def get_bus(bus_id: str, db: Session = Depends(get_db)):
     bus = db.query(Bus).filter(Bus.id == bus_id).first()
     if not bus:
         raise HTTPException(status_code=404, detail="Bus vehicle not found")
-    return bus
+    return {"success": True, "data": bus}

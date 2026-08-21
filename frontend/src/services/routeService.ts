@@ -2,6 +2,14 @@ import { apiClient } from '../api/axiosClient';
 import { MOCK_BUSES, MOCK_ROUTES, MOCK_SERVICE_ALERTS, MOCK_STATS, MOCK_STOPS } from '../api/mockData';
 import type { Bus, Route, RouteSearchResult, ServiceAlert, Stop, SystemStats } from '../types';
 
+function extractArrayData<T>(responseData: any, fallback: T[]): T[] {
+  if (!responseData) return fallback;
+  if (Array.isArray(responseData)) return responseData.length > 0 ? responseData : fallback;
+  if (Array.isArray(responseData.data)) return responseData.data.length > 0 ? responseData.data : fallback;
+  if (Array.isArray(responseData.data?.data)) return responseData.data.data.length > 0 ? responseData.data.data : fallback;
+  return fallback;
+}
+
 export const routeService = {
   // Search routes matching source and destination query with dynamic fallback for ANY custom location
   async searchRoutes(fromQuery: string, toQuery: string): Promise<RouteSearchResult[]> {
@@ -13,11 +21,22 @@ export const routeService = {
 
     try {
       const response = await apiClient.get('/routes/search', { params: { from: rawFrom, to: rawTo } });
-      if (response.data?.data && response.data.data.length > 0) {
-        return response.data.data;
+      const items = extractArrayData<Route>(response.data, []);
+      if (items.length > 0) {
+        return items.map((route, index) => {
+          const bus = MOCK_BUSES[index % MOCK_BUSES.length];
+          return {
+            route,
+            bus,
+            nextBusEtaMinutes: (index + 1) * 5 + 2,
+            transfersCount: 0,
+            departureTime: `${10 + index}:15 AM`,
+            arrivalTime: `${11 + index}:00 AM`
+          };
+        });
       }
     } catch {
-      // Proceed to mock & dynamic matching
+      // Fall through to dynamic matching
     }
 
     // 1. Try matching against existing predefined mock dataset
@@ -123,7 +142,7 @@ export const routeService = {
   async getAllRoutes(): Promise<Route[]> {
     try {
       const response = await apiClient.get('/routes');
-      return response.data.data;
+      return extractArrayData<Route>(response.data, MOCK_ROUTES);
     } catch {
       return MOCK_ROUTES;
     }
@@ -132,7 +151,7 @@ export const routeService = {
   async getRouteById(id: string): Promise<Route | undefined> {
     try {
       const response = await apiClient.get(`/routes/${id}`);
-      return response.data.data;
+      return response.data?.data || response.data || MOCK_ROUTES.find((r) => r.id === id);
     } catch {
       return MOCK_ROUTES.find((r) => r.id === id);
     }
@@ -141,7 +160,7 @@ export const routeService = {
   async getActiveBuses(): Promise<Bus[]> {
     try {
       const response = await apiClient.get('/buses');
-      return response.data.data;
+      return extractArrayData<Bus>(response.data, MOCK_BUSES);
     } catch {
       return MOCK_BUSES;
     }
@@ -150,7 +169,7 @@ export const routeService = {
   async getNearbyStops(): Promise<Stop[]> {
     try {
       const response = await apiClient.get('/stops/nearby');
-      return response.data.data;
+      return extractArrayData<Stop>(response.data, MOCK_STOPS);
     } catch {
       return MOCK_STOPS;
     }
@@ -159,7 +178,7 @@ export const routeService = {
   async getServiceAlerts(): Promise<ServiceAlert[]> {
     try {
       const response = await apiClient.get('/notifications/alerts');
-      return response.data.data;
+      return extractArrayData<ServiceAlert>(response.data, MOCK_SERVICE_ALERTS);
     } catch {
       return MOCK_SERVICE_ALERTS;
     }
@@ -168,7 +187,7 @@ export const routeService = {
   async getSystemStats(): Promise<SystemStats> {
     try {
       const response = await apiClient.get('/admin/stats');
-      return response.data.data;
+      return response.data?.data || response.data || MOCK_STATS;
     } catch {
       return MOCK_STATS;
     }

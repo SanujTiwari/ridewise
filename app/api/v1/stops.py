@@ -7,9 +7,10 @@ from app.schemas.route import StopSchema
 
 router = APIRouter(prefix="/stops", tags=["Bus Stops"])
 
-@router.get("", response_model=List[StopSchema])
+@router.get("")
 def get_stops(db: Session = Depends(get_db)):
-    return db.query(Stop).all()
+    stops = db.query(Stop).all()
+    return {"success": True, "data": stops}
 
 @router.get("/nearby")
 def get_nearby_stops(latitude: float = 31.224, longitude: float = 75.770, db: Session = Depends(get_db)):
