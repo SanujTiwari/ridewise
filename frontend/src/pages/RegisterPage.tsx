@@ -35,6 +35,8 @@ export const RegisterPage: React.FC = () => {
           </div>
           <h2 className="text-2xl font-extrabold text-white">Create RideWise Account</h2>
           <p className="text-xs text-gray-400">Join thousands of smart public transport commuters</p>
+        </div>
+
         {/* Role Selector Pill */}
         <div className="space-y-2">
           <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block text-center">
