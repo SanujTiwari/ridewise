@@ -61,12 +61,30 @@ export const Navbar: React.FC = () => {
               <Activity className="w-4 h-4 inline mr-1.5 text-cyan-400" />
               Live Dashboard
             </Link>
-            <a
-              href="#features"
-              className="px-4 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-800/50 transition-all"
+            <Link
+              to="/features"
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                isActive('/features') ? 'bg-blue-600/10 text-blue-400 border border-blue-500/20' : 'text-gray-300 hover:text-white hover:bg-gray-800/50'
+              }`}
             >
               Features
-            </a>
+            </Link>
+            <Link
+              to="/about"
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                isActive('/about') ? 'bg-blue-600/10 text-blue-400 border border-blue-500/20' : 'text-gray-300 hover:text-white hover:bg-gray-800/50'
+              }`}
+            >
+              About
+            </Link>
+            <Link
+              to="/contact"
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                isActive('/contact') ? 'bg-blue-600/10 text-blue-400 border border-blue-500/20' : 'text-gray-300 hover:text-white hover:bg-gray-800/50'
+              }`}
+            >
+              Contact
+            </Link>
           </nav>
 
           {/* Role Switcher & Auth Section */}
