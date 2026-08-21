@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { routeService } from '../services/routeService';
+import { MapView } from '../features/maps/MapView';
+import { MOCK_STOPS } from '../api/mockData';
 import type { Bus as BusType, ServiceAlert, SystemStats } from '../types';
 
 export const UserDashboardPage: React.FC = () => {
