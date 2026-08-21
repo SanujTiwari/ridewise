@@ -14,6 +14,7 @@ import { useAuth } from '../context/AuthContext';
 import { routeService } from '../services/routeService';
 import { MapView } from '../features/maps/MapView';
 import { MOCK_STOPS } from '../api/mockData';
+import { useWebSocket } from '../hooks/useWebSocket';
 import type { Bus as BusType, ServiceAlert, SystemStats } from '../types';
 
 export const UserDashboardPage: React.FC = () => {
@@ -44,6 +45,9 @@ export const UserDashboardPage: React.FC = () => {
       setSimulatedLat((prev) => +(prev + 0.0015).toFixed(4));
       setSimulatedLng((prev) => +(prev - 0.0012).toFixed(4));
     }, 4000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const { latestUpdate, isConnected: isWsConnected } = useWebSocket();
 
@@ -80,8 +84,8 @@ export const UserDashboardPage: React.FC = () => {
       <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-gray-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2 text-xs text-blue-400 font-bold uppercase tracking-wider mb-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>RideWise Live Telematics Dashboard</span>
+            <span className={`w-2 h-2 rounded-full ${isWsConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></span>
+            <span>{isWsConnected ? 'RideWise Live WebSocket Stream' : 'RideWise Telematics Simulator Active'}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
             Welcome back, {user?.name || 'Passenger'}
