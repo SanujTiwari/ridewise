@@ -1,9 +1,12 @@
+import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.database.database import engine, Base, SessionLocal
 from app.api.v1 import auth, routes, stops, buses, admin
+from app.websocket import location_ws
+from app.services.telematics_simulator import simulator
 from app.models import User, Route, Stop, Bus, ServiceAlert
 from app.core.security import hash_password
 
@@ -49,7 +52,12 @@ async def lifespan(app: FastAPI):
         db.commit()
     finally:
         db.close()
+
+    # Start background telematics simulator task
+    sim_task = asyncio.create_task(simulator.start())
     yield
+    simulator.stop()
+    sim_task.cancel()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -71,6 +79,7 @@ app.include_router(routes.router, prefix=settings.API_V1_STR)
 app.include_router(stops.router, prefix=settings.API_V1_STR)
 app.include_router(buses.router, prefix=settings.API_V1_STR)
 app.include_router(admin.router, prefix=settings.API_V1_STR)
+app.include_router(location_ws.router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def root():
@@ -78,5 +87,6 @@ def root():
         "project": settings.PROJECT_NAME,
         "version": settings.VERSION,
         "status": "running",
+        "ws_url": "/api/v1/ws/bus-location",
         "docs_url": "/docs"
     }

@@ -45,8 +45,31 @@ export const UserDashboardPage: React.FC = () => {
       setSimulatedLng((prev) => +(prev - 0.0012).toFixed(4));
     }, 4000);
 
-    return () => clearInterval(timer);
-  }, []);
+  const { latestUpdate, isConnected: isWsConnected } = useWebSocket();
+
+  useEffect(() => {
+    if (latestUpdate) {
+      setBuses((prevBuses) =>
+        prevBuses.map((b) => {
+          if (b.busNumber === latestUpdate.busNumber) {
+            return {
+              ...b,
+              location: {
+                ...b.location,
+                latitude: latestUpdate.latitude,
+                longitude: latestUpdate.longitude,
+                speedKmH: latestUpdate.speedKmH,
+                lastUpdated: latestUpdate.timestamp
+              },
+              nextStopName: latestUpdate.nextStopName,
+              etaToNextStopMinutes: latestUpdate.etaToNextStopMinutes
+            };
+          }
+          return b;
+        })
+      );
+    }
+  }, [latestUpdate]);
 
   const role = user?.role || 'USER';
 
